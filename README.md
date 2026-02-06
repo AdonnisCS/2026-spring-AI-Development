@@ -10,7 +10,7 @@ This repository contains materials for a four-part workshop on AI development fo
 
 ### Lecture 1 (slides-first)
 - **Topic**: Foundations
-- **Slides**: `lecture_1/slides/lecture_1.pdf`
+- **Slides**: [lecture_1.pdf](lecture_1/slides/lecture_1.pdf)
 
 
 - **Readings for lecture 2**:
@@ -31,7 +31,7 @@ This repository contains materials for a four-part workshop on AI development fo
 
 ### Lecture 2 (Costs and Processing)
 - **Topic**: Vertical Slices, MVPs, Crawling, Walking, and Running
-- **Slides**: `lecture_2/slides/lecture_2.pdf`
+- **Slides**: [lecture_2.pdf](lecture_2/slides/lecture_2.pdf)
 - **Notebook**: `lecture_2/notebooks/resume_screening.ipynb`
 - **Data**: `lecture_2/data/resumes_final.csv` (130 resumes for AI-assisted scoring)
 
@@ -48,7 +48,7 @@ This repository contains materials for a four-part workshop on AI development fo
 
 ### Lecture 3 (Improving Performance)
 - **Topic**: Context Engineering Techniques for Better Results
-- **Slides**: `lecture_3/slides/lecture_3.pdf`
+- **Slides**: [lecture_3.pdf](lecture_3/slides/lecture_3.pdf)
 - **Notebook**: `lecture_3/notebooks/lecture_3_resume_scorer_improvement.ipynb`
 - **Data**: `lecture_3/data/resumes_final.csv` (130 resumes), `lecture_3/data/job_req_senior.md`
 - **Key Techniques**: Decomposition, Grounding with Citations, Few-Shot Examples
@@ -66,7 +66,7 @@ This repository contains materials for a four-part workshop on AI development fo
 
 ### Lecture 4 (AI Agents & Tool Use)
 - **Topic**: Building an Application Routing Agent
-- **Slides**: `lecture_4/slides/lecture_4.pdf`
+- **Slides**: [lecture_4.pdf](lecture_4/slides/lecture_4.pdf)
 - **Notebook**: `lecture_4/notebooks/lecture_4_application_routing_agent.ipynb`
 - **Data**: `lecture_4/data/resumes_final.csv` (130 resumes), `lecture_4/data/job_req_senior.md`
 - **Key Concepts**:
@@ -91,7 +91,7 @@ This repository contains materials for a four-part workshop on AI development fo
   - **Task 2**: Experiment with temperature settings (0.2, 0.5, 1.0)
   - **Task 3**: Run on full dataset of 130 candidates and verify cost estimates
 
-## Running notebooks (per lecture)
+## Running notebooks (per lecture) 
 
 Each lecture directory contains a `Makefile`, `Dockerfile`, and `pyproject.toml`.
 
@@ -100,15 +100,12 @@ From a lecture directory (e.g. `lecture_2/`):
 - `make notebook` (starts Jupyter in Docker on port 8888)
 - `make interactive` (drops you into a bash shell in the container)
 
-## Building slides
-
-Slides are in Beamer (LaTeX) under each lecture’s `slides/` folder.
-
-Example:
-```bash
-cd lecture_1/slides
-pdflatex lecture_1.tex
-```
 
 ## Improvements for next time
+
+- Additional Readings
+- First lecture needs a better set of organization and framework. Get to coding faster.
+- Do the resume reviewer only through out the entire system. Simplify problem (less resumes), better more actionalable To Do's e.g. have them report which resumes are best and worst. 
+- All of the slides need some fun improvements, graphics, better pacing, etc.
+- last lecture todo needs to be a bit longer on the to do. The notebook was the best out of all of them in terms of how it played out but the tasks needed some work.
 
