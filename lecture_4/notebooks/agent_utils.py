@@ -39,7 +39,7 @@ def structured_llm_call(
     prompt: str,
     context_data: Dict[str, Any],
     output_schema: Dict[str, Any],
-    model: str = "anthropic/claude-3.5-sonnet",
+    model: str = "anthropic/claude-sonnet-4.6",
     temperature: float = 0.2
 ) -> Dict[str, Any]:
     """

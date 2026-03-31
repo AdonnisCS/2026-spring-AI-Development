@@ -28,12 +28,26 @@ def load_resumes(csv_path: str) -> Dict[str, Dict[str, str]]:
     return resumes
 
 
+def load_job_requirements(file_path: str) -> str:
+    """
+    Load job requirements from a markdown file.
+
+    Args:
+        file_path: Path to the job requirements markdown file
+
+    Returns:
+        String contents of the job requirements file
+    """
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return f.read()
+
+
 def analyze_resume(
     api_key: str,
     prompt: str,
     resume_text: str,
     output_schema: str,
-    model: str = "anthropic/claude-3.5-sonnet",
+    model: str = "anthropic/claude-sonnet-4.6",
     temperature: float = 0.3
 ) -> Dict[str, Any]:
     """

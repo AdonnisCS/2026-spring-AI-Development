@@ -114,21 +114,21 @@
         \item \textbf{Automation}: Scale beyond manual chat interactions
         \item \textbf{Scalability}: Building systems that can scale beyond a one-to-one human-chat.
     \end{enumerate}
+    \item System Understanding: By learning how to use these systems via API we will understand better how agentic workflows \it{actually} work.
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Example: Personalized Marketing Outreach}
 \begin{itemize}
-    \item A company wants to use their CRM system to send personalized cold outreach emails
+    \item A company wants to connect their email and sales system to send personalized coupons.
     \item They need to write code to:
     \begin{itemize}
-        \item Connect to their CRM database
+        \item Connect to their sales database
         \item Retrieve prospect information
         \item Generate personalized emails using an LLM API
         \item Send emails through their email system
     \end{itemize}
     \item This requires \textbf{programmatic integration}, not just chat interfaces
-    \item This is a concrete example of why we build AI systems programmatically
 \end{itemize}
 \end{frame}
 
@@ -152,6 +152,7 @@ By the end of this course, you will:
         \item Tune and optimize real systems
         \item Understand the trade-offs in building such systems
     \end{itemize}
+    \item \textbf{Understand the Agent Loop}
 \end{enumerate}
 \end{frame}
 
@@ -165,7 +166,7 @@ By the end of this course, you will:
 \textbf{Next lectures}:
 \begin{itemize}
     \item Workshop 2 - 4: Specific Implementation that highlight concrete problems
-    \item Dates: Thursday (1/15), Monday (1/26) and Tuesday (1/27)
+    \item Dates: TuTh this week and next
     \item Workshops will be 30-ish minutes of lecture followed by 1 hour of hands-on time
     \item Between each lecture there will be a set of readings (usually articles)
 \end{itemize}
@@ -311,7 +312,7 @@ While LLMs are powerful, they have important limitations:
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Context windows: What they are}
+\begin{frame}{Context windows: What are they}
 \begin{itemize}
     \item The \textbf{context window} is the model's working memory for a single request
     \item Everything the model can use must fit inside it
@@ -326,11 +327,14 @@ While LLMs are powerful, they have important limitations:
 \begin{frame}{Context Window Size Limitations}
 \begin{itemize}
     \item Different models have different maximum context window sizes (measured in \textbf{tokens})
-    \item Common model context windows (as of 2024-2025):
+    \item Common model context windows:
+\item Common model context windows:
     \begin{itemize}
-        \item \textbf{GPT-4}: 128,000 tokens
-        \item \textbf{Claude 3.5 Sonnet}: 200,000 tokens
-        \item \textbf{Claude Sonnet 4}: 1,000,000 tokens (announced 2025)
+        \item \textbf{GPT-5.4}: 272,000 tokens (standard), expandable to 1,000,000 via API
+        \item \textbf{Claude Sonnet 4.6}: 1,000,000 tokens
+        \item \textbf{Claude Opus 4.6}: 1,000,000 tokens
+        \item \textbf{Gemini 3.1 Pro}: 1,000,000 tokens
+        \item \textbf{Llama 4 Scout}: 10,000,000 tokens
         \item \textbf{Llama 3.1} (70B, 405B): 128,000 tokens
     \end{itemize}
     \item \textbf{Remember}: 1 token $\approx$ 0.75 words
@@ -491,10 +495,14 @@ GPT-4.1 nano & \$0.10 & \$0.40 \\
 \begin{frame}{Exercise}
 	The goal for today is:
 \begin{itemize}
-\item Team up with another person (min group 2, max group 3)	
+\item Team up with another person (min group 2, max group 4)	
 \item Get access to your API Keys	
 \item Verify that you can use the keys
-\item Complete the notebook. Can you engineer the context to get all the webpages to be classified correctly?
+\item Complete the notebook by answering the following questions:
+\begin{itemize}
+\item How did the different models perform?
+\item What are your take-aways?
+\end{itemize}
 \end{itemize}
 \end{frame}
 

@@ -3,6 +3,43 @@
 from typing import Any, Dict, List, Optional
 import httpx
 import json
+import csv
+
+
+def load_resumes(csv_path: str) -> Dict[str, Dict[str, str]]:
+    """
+    Load all resumes from CSV into a dictionary.
+
+    Args:
+        csv_path: Path to the resumes CSV file
+
+    Returns:
+        Dict mapping resume ID to resume data (ID, Resume_str, Resume_html)
+    """
+    resumes = {}
+    with open(csv_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            resumes[row['ID']] = {
+                'ID': row['ID'],
+                'Resume_str': row['Resume_str'],
+                'Resume_html': row['Resume_html']
+            }
+    return resumes
+
+
+def load_job_requirements(file_path: str) -> str:
+    """
+    Load job requirements from a markdown file.
+
+    Args:
+        file_path: Path to the job requirements markdown file
+
+    Returns:
+        String contents of the job requirements file
+    """
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return f.read()
 
 # API Configuration
 BASE_URL = "https://openrouter.ai/api/v1"
