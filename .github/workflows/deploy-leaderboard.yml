@@ -21,7 +21,9 @@ jobs:
             cd ~/2026-spring-AI-Development
             git pull origin main
             cd lecture_2
-            pkill -f "uvicorn leaderboard.app:app" || true
+            pgrep -f "uvicorn leaderboard.app:app" | xargs -r kill || true
+            sleep 1
             nohup make -C leaderboard serve PORT=8000 > /tmp/leaderboard.log 2>&1 &
+            disown
             sleep 2
             curl -sf http://localhost:8000/ > /dev/null && echo "Leaderboard is running" || echo "WARNING: Leaderboard failed to start"
