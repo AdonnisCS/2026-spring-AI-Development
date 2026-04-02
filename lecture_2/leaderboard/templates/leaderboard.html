@@ -52,10 +52,13 @@
         th {
             background: #1a1a2e;
             color: white;
+            cursor: pointer;
+            user-select: none;
             position: sticky;
             top: 0;
             z-index: 1;
         }
+        th:hover { background: #16213e; }
         th.resume-header {
             background: #1a1a2e;
             text-align: left;
@@ -71,7 +74,10 @@
             position: sticky;
             left: 0;
             z-index: 1;
+            cursor: pointer;
+            user-select: none;
         }
+        td.resume-id:hover { background: #16213e; }
         tr:nth-child(even) td:not(.resume-id) { background: #f8f9fa; }
         tr:hover td:not(.resume-id) { background: #e8f0fe; }
         td { border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
@@ -105,14 +111,14 @@
                 <tr>
                     <th class="resume-header">Resume ID</th>
                     {% for team in team_names %}
-                    <th>{{ team }}</th>
+                    <th onclick="sortByColumn({{ loop.index }})">{{ team }}</th>
                     {% endfor %}
                 </tr>
             </thead>
             <tbody>
                 {% for rid in resume_ids %}
                 <tr>
-                    <td class="resume-id">{{ rid }}</td>
+                    <td class="resume-id" onclick="sortByRow(this.parentElement)">{{ rid }}</td>
                     {% for team in team_names %}
                     <td>
                         {% set key = (rid, team) %}
@@ -137,6 +143,63 @@
 
     <script>
         setTimeout(() => location.reload(), 10000);
+
+        let colSortState = {};
+        let rowSortState = {};
+
+        function getScore(cell) {
+            const scoreEl = cell.querySelector('.score');
+            return scoreEl ? parseFloat(scoreEl.textContent) : -1;
+        }
+
+        function sortByColumn(colIndex) {
+            const tbody = document.querySelector('#leaderboard tbody');
+            const rows = Array.from(tbody.rows);
+            const asc = colSortState[colIndex] === 'desc';
+            colSortState = {};
+            colSortState[colIndex] = asc ? 'asc' : 'desc';
+
+            rows.sort((a, b) => {
+                const aVal = getScore(a.cells[colIndex]);
+                const bVal = getScore(b.cells[colIndex]);
+                return asc ? aVal - bVal : bVal - aVal;
+            });
+            rows.forEach(r => tbody.appendChild(r));
+        }
+
+        function sortByRow(tr) {
+            const table = document.getElementById('leaderboard');
+            const thead = table.tHead.rows[0];
+            const rowIndex = tr.rowIndex;
+            const asc = rowSortState[rowIndex] === 'desc';
+            rowSortState = {};
+            rowSortState[rowIndex] = asc ? 'asc' : 'desc';
+
+            // Gather team columns with their scores in this row
+            const cols = [];
+            for (let i = 1; i < tr.cells.length; i++) {
+                cols.push({ index: i, score: getScore(tr.cells[i]) });
+            }
+            cols.sort((a, b) => asc ? a.score - b.score : b.score - a.score);
+
+            // Reorder all columns (header + every body row)
+            const order = cols.map(c => c.index);
+
+            // Reorder header
+            const headerCells = Array.from(thead.cells);
+            const newHeader = [headerCells[0]];
+            order.forEach(i => newHeader.push(headerCells[i]));
+            newHeader.forEach(c => thead.appendChild(c));
+
+            // Reorder each body row
+            const tbody = table.tBodies[0];
+            Array.from(tbody.rows).forEach(row => {
+                const cells = Array.from(row.cells);
+                const newRow = [cells[0]];
+                order.forEach(i => newRow.push(cells[i]));
+                newRow.forEach(c => row.appendChild(c));
+            });
+        }
 
         function resetLeaderboard() {
             const password = prompt("Enter password to reset the leaderboard:");
