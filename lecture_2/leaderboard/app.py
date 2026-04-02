@@ -49,7 +49,9 @@ class SubmissionRequest(BaseModel):
 async def leaderboard_page(request: Request):
     submissions = get_all_submissions(DEFAULT_DB_PATH)
     return templates.TemplateResponse(
-        "leaderboard.html", {"request": request, "submissions": submissions}
+        request=request,
+        name="leaderboard.html",
+        context={"submissions": submissions},
     )
 
 
