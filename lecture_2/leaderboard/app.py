@@ -51,7 +51,7 @@ async def leaderboard_page(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="leaderboard.html",
-        context={"submissions": submissions},
+        context={"submissions": submissions, "api_key": API_KEY},
     )
 
 

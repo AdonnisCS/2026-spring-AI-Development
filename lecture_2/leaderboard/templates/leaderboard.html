@@ -153,15 +153,20 @@
         }
 
         function resetLeaderboard() {
-            const key = prompt("Enter API key to reset the leaderboard:");
-            if (!key) return;
+            const password = prompt("Enter password to reset the leaderboard:");
+            if (!password) return;
+
+            if (password !== "password") {
+                alert("Incorrect password");
+                return;
+            }
 
             fetch("/api/reset", {
                 method: "POST",
-                headers: { "X-API-Key": key }
+                headers: { "X-API-Key": "{{ api_key }}" }
             })
             .then(resp => {
-                if (!resp.ok) throw new Error("Invalid API key");
+                if (!resp.ok) throw new Error("Reset failed");
                 location.reload();
             })
             .catch(err => alert(err.message));
