@@ -95,7 +95,21 @@ Return ONLY valid JSON, no additional text."""
             resp.raise_for_status()
             data = resp.json()
 
+            if "error" in data:
+                return {
+                    "result": None,
+                    "error": f"API error: {data['error']}",
+                    "usage": {},
+                }
+
             content = data["choices"][0]["message"]["content"]
+            if not content:
+                return {
+                    "result": None,
+                    "error": f"Empty response from model. Raw response: {data}",
+                    "usage": data.get("usage", {}),
+                }
+
             result = json.loads(content)
 
             return {
@@ -103,6 +117,12 @@ Return ONLY valid JSON, no additional text."""
                 "error": None,
                 "usage": data.get("usage", {})
             }
+    except json.JSONDecodeError as e:
+        return {
+            "result": None,
+            "error": f"Failed to parse JSON: {e}. Raw content: {content!r}",
+            "usage": data.get("usage", {}),
+        }
     except Exception as e:
         return {
             "result": None,
