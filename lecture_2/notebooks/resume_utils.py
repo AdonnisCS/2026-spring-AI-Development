@@ -87,7 +87,6 @@ Resume:
             "type": "json_schema",
             "json_schema": {
                 "name": schema.get("title", "response"),
-                "strict": True,
                 "schema": schema,
             },
         },
@@ -134,7 +133,7 @@ def submit_score(
     resume_id: str,
     score: float,
     api_url: str = "http://ai-leaderboard.site/lecture2",
-    api_key: str = "lecture2-secret-key",
+    api_key: str = "leaderboard-api-key",
 ) -> dict:
     """
     Submit a resume score to the leaderboard.
@@ -163,7 +162,7 @@ def delete_score(
     team_name: str,
     resume_id: str,
     api_url: str = "http://ai-leaderboard.site/lecture2",
-    api_key: str = "lecture2-secret-key",
+    api_key: str = "leaderboard-api-key",
 ) -> dict:
     """
     Delete a single submission from the leaderboard.
@@ -191,7 +190,7 @@ def delete_score(
 def delete_team(
     team_name: str,
     api_url: str = "http://ai-leaderboard.site/lecture2",
-    api_key: str = "lecture2-secret-key",
+    api_key: str = "leaderboard-api-key",
 ) -> dict:
     """
     Delete all submissions for a team from the leaderboard.

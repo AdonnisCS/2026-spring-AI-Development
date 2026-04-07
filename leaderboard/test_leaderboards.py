@@ -4,7 +4,7 @@ import random
 from fastapi.testclient import TestClient
 from leaderboard.app import app
 
-API_KEY = "lecture2-secret-key"
+API_KEY = "leaderboard-api-key"
 HEADERS = {"X-API-Key": API_KEY}
 
 
@@ -139,7 +139,7 @@ def test_lecture3():
         print(f"  [PASS] Reset: {r.json()}")
 
         # Submit gold scores (should be high)
-        gold_scores = {"g01": 88, "g02": 92, "g03": 85}
+        gold_scores = {"g01": 88, "g02": 92}
         for rid, score in gold_scores.items():
             r = client.post(
                 "/lecture3/api/submit",
@@ -175,7 +175,7 @@ def test_lecture3():
         r = client.get("/lecture3/api/submissions")
         assert r.status_code == 200
         subs = r.json()
-        assert len(subs) == 7
+        assert len(subs) == 6
         print(f"  [PASS] Get submissions: {len(subs)} rows")
 
         # Get metrics for TestTeam
@@ -195,7 +195,7 @@ def test_lecture3():
         assert m["gold_mean"] > m["silver_mean"], "Gold mean should exceed silver mean"
         assert m["gold_silver_gap"] > 0, "Gold-silver gap should be positive"
         assert m["rank_separation"] == 1.0, "Perfect separation expected with these scores"
-        assert m["num_gold"] == 3
+        assert m["num_gold"] == 2
         assert m["num_silver"] == 2
         assert m["num_wild"] == 2
         print(f"  [PASS] Metrics validation passed")

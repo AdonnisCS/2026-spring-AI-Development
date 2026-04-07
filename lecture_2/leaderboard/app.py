@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from .database import DEFAULT_DB_PATH, add_submission, delete_submission, delete_team_submissions, get_all_submissions, init_db, reset_db
 
-API_KEY = os.environ.get("LEADERBOARD_API_KEY", "lecture2-secret-key")
+API_KEY = os.environ.get("LEADERBOARD_API_KEY", "leaderboard-api-key")
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 TEMPLATES_DIR = Path(__file__).parent / "templates"

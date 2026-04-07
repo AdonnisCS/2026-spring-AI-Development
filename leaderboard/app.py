@@ -22,7 +22,7 @@ from .database import (
     reset_db,
 )
 
-API_KEY = os.environ.get("LEADERBOARD_API_KEY", "lecture2-secret-key")
+API_KEY = os.environ.get("LEADERBOARD_API_KEY", "leaderboard-api-key")
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
