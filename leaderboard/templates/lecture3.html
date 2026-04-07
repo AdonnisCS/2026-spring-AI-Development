@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaderboard – Lecture 3 Metrics</title>
+    <title>Resume Scoring Leaderboard – Lecture 3</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -58,7 +58,7 @@
             min-width: 100%;
         }
         th, td {
-            padding: 0.6rem 1rem;
+            padding: 0.6rem 0.8rem;
             text-align: center;
             white-space: nowrap;
         }
@@ -72,15 +72,35 @@
             z-index: 1;
         }
         th:hover { background: #16213e; }
-        th .sort-arrow { font-size: 0.7rem; margin-left: 4px; }
+        th.resume-header {
+            background: #1a1a2e;
+            text-align: left;
+            position: sticky;
+            left: 0;
+            z-index: 2;
+        }
+        td.resume-id {
+            background: #1a1a2e;
+            color: white;
+            font-weight: 600;
+            text-align: left;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+            cursor: pointer;
+            user-select: none;
+        }
+        td.resume-id:hover { background: #16213e; }
+        td.resume-id.gold { background: #b8860b; }
+        td.resume-id.gold:hover { background: #9a7209; }
+        td.resume-id.silver { background: #708090; }
+        td.resume-id.silver:hover { background: #5a6a7a; }
+        tr:nth-child(even) td:not(.resume-id) { background: #f8f9fa; }
+        tr:hover td:not(.resume-id) { background: #e8f0fe; }
         td { border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
-        tr:nth-child(even) td { background: #f8f9fa; }
-        tr:hover td { background: #e8f0fe; }
-        .team-cell { font-weight: 600; text-align: left; }
-        .positive { color: #27ae60; font-weight: 600; }
-        .negative { color: #e74c3c; font-weight: 600; }
-        .neutral { color: #333; }
-        .na { color: #ccc; font-style: italic; }
+        .score { font-size: 1.1rem; font-weight: 600; color: #1a1a2e; }
+        .timestamp { font-size: 0.7rem; color: #999; margin-top: 2px; }
+        .empty-cell { color: #ccc; font-style: italic; font-size: 0.85rem; }
         .empty-msg {
             text-align: center;
             padding: 2rem;
@@ -96,53 +116,39 @@
     </style>
 </head>
 <body>
-    <h1>Leaderboard &mdash; Lecture 3</h1>
-    <p class="subtitle">Gold/Silver discrimination metrics &middot; sorted by Gold-Silver Gap</p>
+    <h1>Resume Scoring Leaderboard &mdash; Lecture 3</h1>
+    <p class="subtitle">Gold/Silver discrimination &middot; Context Engineering</p>
     <div class="controls">
         <button onclick="resetLeaderboard()">Reset Leaderboard</button>
         <a href="/lecture2">&larr; Lecture 2</a>
     </div>
 
-    {% if metrics_list %}
+    {% if team_names %}
     <div class="table-wrapper">
         <table id="leaderboard">
             <thead>
                 <tr>
-                    <th onclick="sortTable(0)">Team<span class="sort-arrow"></span></th>
-                    <th onclick="sortTable(1)">Gold Mean<span class="sort-arrow"></span></th>
-                    <th onclick="sortTable(2)">Silver Mean<span class="sort-arrow"></span></th>
-                    <th onclick="sortTable(3)">Gold-Silver Gap<span class="sort-arrow"></span></th>
-                    <th onclick="sortTable(4)">Rank Separation<span class="sort-arrow"></span></th>
-                    <th onclick="sortTable(5)">Gold Std<span class="sort-arrow"></span></th>
-                    <th onclick="sortTable(6)">Silver Std<span class="sort-arrow"></span></th>
+                    <th class="resume-header">Resume ID</th>
+                    {% for team in team_names %}
+                    <th onclick="sortByColumn({{ loop.index }})">{{ team }}</th>
+                    {% endfor %}
                 </tr>
             </thead>
             <tbody>
-                {% for m in metrics_list %}
+                {% for rid in resume_ids %}
                 <tr>
-                    <td class="team-cell">{{ m.team_name }}</td>
-                    <td>{% if m.gold_mean is not none %}{{ m.gold_mean }}{% else %}<span class="na">n/a</span>{% endif %}</td>
-                    <td>{% if m.silver_mean is not none %}{{ m.silver_mean }}{% else %}<span class="na">n/a</span>{% endif %}</td>
+                    <td class="resume-id {% if rid.startswith('g') %}gold{% elif rid.startswith('s') %}silver{% endif %}" onclick="sortByRow(this.parentElement)">{{ rid }}</td>
+                    {% for team in team_names %}
                     <td>
-                        {% if m.gold_silver_gap is not none %}
-                            <span class="{% if m.gold_silver_gap > 0 %}positive{% elif m.gold_silver_gap < 0 %}negative{% else %}neutral{% endif %}">
-                                {{ m.gold_silver_gap }}
-                            </span>
+                        {% set key = (rid, team) %}
+                        {% if key in grid %}
+                        <div class="score">{{ grid[key].score }}</div>
+                        <div class="timestamp">{{ grid[key].submitted_at }}</div>
                         {% else %}
-                            <span class="na">n/a</span>
+                        <span class="empty-cell">-</span>
                         {% endif %}
                     </td>
-                    <td>
-                        {% if m.rank_separation is not none %}
-                            <span class="{% if m.rank_separation >= 0.7 %}positive{% elif m.rank_separation < 0.5 %}negative{% else %}neutral{% endif %}">
-                                {{ m.rank_separation }}
-                            </span>
-                        {% else %}
-                            <span class="na">n/a</span>
-                        {% endif %}
-                    </td>
-                    <td>{% if m.gold_std is not none %}{{ m.gold_std }}{% else %}<span class="na">n/a</span>{% endif %}</td>
-                    <td>{% if m.silver_std is not none %}{{ m.silver_std }}{% else %}<span class="na">n/a</span>{% endif %}</td>
+                    {% endfor %}
                 </tr>
                 {% endfor %}
             </tbody>
@@ -157,49 +163,57 @@
     <script>
         setTimeout(() => location.reload(), 10000);
 
-        let currentSortCol = null;
-        let currentSortAsc = false;
+        let colSortState = {};
+        let rowSortState = {};
 
-        function sortTable(colIndex) {
-            const table = document.getElementById('leaderboard');
-            const tbody = table.tBodies[0];
+        function getScore(cell) {
+            const scoreEl = cell.querySelector('.score');
+            return scoreEl ? parseFloat(scoreEl.textContent) : -1;
+        }
+
+        function sortByColumn(colIndex) {
+            const tbody = document.querySelector('#leaderboard tbody');
             const rows = Array.from(tbody.rows);
-
-            const asc = (currentSortCol === colIndex) ? !currentSortAsc : false;
-            currentSortCol = colIndex;
-            currentSortAsc = asc;
+            const asc = colSortState[colIndex] === 'desc';
+            colSortState = {};
+            colSortState[colIndex] = asc ? 'asc' : 'desc';
 
             rows.sort((a, b) => {
-                let aText = a.cells[colIndex].textContent.trim();
-                let bText = b.cells[colIndex].textContent.trim();
-
-                // Text column (team)
-                if (colIndex === 0) {
-                    return asc
-                        ? aText.localeCompare(bText)
-                        : bText.localeCompare(aText);
-                }
-
-                // Numeric columns
-                let aVal = (aText === 'n/a') ? -Infinity : parseFloat(aText);
-                let bVal = (bText === 'n/a') ? -Infinity : parseFloat(bText);
+                const aVal = getScore(a.cells[colIndex]);
+                const bVal = getScore(b.cells[colIndex]);
                 return asc ? aVal - bVal : bVal - aVal;
             });
-
             rows.forEach(r => tbody.appendChild(r));
+        }
 
-            // Update sort arrows
-            const headers = table.tHead.rows[0].cells;
-            for (let i = 0; i < headers.length; i++) {
-                const arrow = headers[i].querySelector('.sort-arrow');
-                if (arrow) {
-                    if (i === colIndex) {
-                        arrow.textContent = asc ? ' \u25B2' : ' \u25BC';
-                    } else {
-                        arrow.textContent = '';
-                    }
-                }
+        function sortByRow(tr) {
+            const table = document.getElementById('leaderboard');
+            const thead = table.tHead.rows[0];
+            const rowIndex = tr.rowIndex;
+            const asc = rowSortState[rowIndex] === 'desc';
+            rowSortState = {};
+            rowSortState[rowIndex] = asc ? 'asc' : 'desc';
+
+            const cols = [];
+            for (let i = 1; i < tr.cells.length; i++) {
+                cols.push({ index: i, score: getScore(tr.cells[i]) });
             }
+            cols.sort((a, b) => asc ? a.score - b.score : b.score - a.score);
+
+            const order = cols.map(c => c.index);
+
+            const headerCells = Array.from(thead.cells);
+            const newHeader = [headerCells[0]];
+            order.forEach(i => newHeader.push(headerCells[i]));
+            newHeader.forEach(c => thead.appendChild(c));
+
+            const tbody = table.tBodies[0];
+            Array.from(tbody.rows).forEach(row => {
+                const cells = Array.from(row.cells);
+                const newRow = [cells[0]];
+                order.forEach(i => newRow.push(cells[i]));
+                newRow.forEach(c => row.appendChild(c));
+            });
         }
 
         function resetLeaderboard() {

@@ -255,11 +255,11 @@ def test_lecture3():
         assert r.json()["deleted"] == 2
         print(f"  [PASS] Delete team: {r.json()}")
 
-        # HTML page renders with metrics
+        # HTML page renders with grid
         r = client.get("/lecture3")
         assert r.status_code == 200
         assert "Leaderboard" in r.text
-        assert "Gold Mean" in r.text
+        assert "Resume ID" in r.text
         print(f"  [PASS] HTML page renders ({len(r.text)} chars)")
 
         # Root shows lecture picker

@@ -344,31 +344,41 @@ def _compute_metrics(submissions: list[dict], team_name: str) -> dict:
 async def lecture3_page(request: Request):
     submissions = get_all_submissions(LECTURE3_DB_PATH)
 
-    # Collect unique teams
     team_names: list[str] = []
-    seen: set[str] = set()
+    resume_ids: list[str] = []
+    seen_teams: set[str] = set()
+    seen_resumes: set[str] = set()
+    grid: dict[tuple[str, str], dict] = {}
+
     for s in submissions:
-        if s["team_name"] not in seen:
-            team_names.append(s["team_name"])
-            seen.add(s["team_name"])
+        tid, rid = s["team_name"], s["resume_id"]
+        if tid not in seen_teams:
+            team_names.append(tid)
+            seen_teams.add(tid)
+        if rid not in seen_resumes:
+            resume_ids.append(rid)
+            seen_resumes.add(rid)
+        grid[(rid, tid)] = {"score": s["score"], "submitted_at": s["submitted_at"]}
 
-    # Compute metrics for each team
-    metrics_list = []
-    for team_name in team_names:
-        m = _compute_metrics(submissions, team_name)
-        metrics_list.append(m)
+    team_names.sort()
+    # Sort resume IDs: gold first, then silver, then wild (numeric)
+    def _rid_sort_key(rid: str) -> tuple[int, str]:
+        if rid.startswith("g"):
+            return (0, rid)
+        elif rid.startswith("s"):
+            return (1, rid)
+        else:
+            return (2, rid)
 
-    # Sort by gold_silver_gap descending (None values at the bottom)
-    metrics_list.sort(
-        key=lambda m: (m["gold_silver_gap"] is not None, m["gold_silver_gap"] or 0),
-        reverse=True,
-    )
+    resume_ids.sort(key=_rid_sort_key)
 
     return templates.TemplateResponse(
         request=request,
         name="lecture3.html",
         context={
-            "metrics_list": metrics_list,
+            "team_names": team_names,
+            "resume_ids": resume_ids,
+            "grid": grid,
             "api_key": API_KEY,
         },
     )
