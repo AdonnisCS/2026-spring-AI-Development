@@ -141,10 +141,10 @@
         }
         .gear-btn:hover { color: #fff; }
         .dropdown-anchor {
-            position: relative;
             display: inline-block;
         }
-        .dropdown-menu {
+        /* Shared dropdown rendered at body level */
+        #sharedDropdown {
             display: none;
             position: fixed;
             background: white;
@@ -154,8 +154,8 @@
             z-index: 9999;
             min-width: 140px;
         }
-        .dropdown-menu.show { display: block; }
-        .dropdown-menu button {
+        #sharedDropdown.show { display: block; }
+        #sharedDropdown button {
             display: block;
             width: 100%;
             padding: 0.5rem 0.8rem;
@@ -166,9 +166,9 @@
             font-size: 0.82rem;
             color: #333;
         }
-        .dropdown-menu button:hover { background: #f0f0f0; }
-        .dropdown-menu button.danger { color: #e74c3c; }
-        .dropdown-menu button.danger:hover { background: #fdecea; }
+        #sharedDropdown button:hover { background: #f0f0f0; }
+        #sharedDropdown button.danger { color: #e74c3c; }
+        #sharedDropdown button.danger:hover { background: #fdecea; }
         /* Email slideshow overlay */
         .overlay {
             display: none;
@@ -354,10 +354,7 @@
                         <div class="header-wrapper">
                             <span>{{ team }}</span>
                             <div class="dropdown-anchor">
-                                <button class="gear-btn" onclick="toggleDropdown(event, 'col-dd-{{ loop.index }}')">&#9881;</button>
-                                <div id="col-dd-{{ loop.index }}" class="dropdown-menu">
-                                    <button class="danger" onclick="deleteTeam('{{ team }}')">Delete Team</button>
-                                </div>
+                                <button class="gear-btn" onclick="openGear(event, 'team', '{{ team }}')">&#9881;</button>
                             </div>
                         </div>
                     </th>
@@ -371,11 +368,7 @@
                         <div class="header-wrapper">
                             <span>{{ rid }}</span>
                             <div class="dropdown-anchor">
-                                <button class="gear-btn" onclick="toggleDropdown(event, 'row-dd-{{ loop.index }}')">&#9881;</button>
-                                <div id="row-dd-{{ loop.index }}" class="dropdown-menu">
-                                    <button onclick="openEmailSlideshow('{{ rid }}')">View Emails</button>
-                                    <button class="danger" onclick="deleteResume('{{ rid }}')">Delete Resume</button>
-                                </div>
+                                <button class="gear-btn" onclick="openGear(event, 'resume', '{{ rid }}')">&#9881;</button>
                             </div>
                         </div>
                     </td>
@@ -401,6 +394,9 @@
     {% endif %}
 
     <p class="refresh-note">Auto-refreshes every 10 seconds</p>
+
+    <!-- Shared dropdown (rendered outside table to avoid stacking context issues) -->
+    <div id="sharedDropdown"></div>
 
     <!-- Single email modal -->
     <div id="cellModal" class="modal-backdrop" onclick="if(event.target===this)closeCellModal()">
@@ -458,22 +454,31 @@
             }
         });
 
-        /* ---- Dropdown toggle (fixed positioning) ---- */
-        function toggleDropdown(event, id) {
+        /* ---- Shared dropdown ---- */
+        function openGear(event, type, id) {
             event.stopPropagation();
-            const menu = document.getElementById(id);
-            const wasOpen = menu.classList.contains('show');
-            document.querySelectorAll('.dropdown-menu.show').forEach(el => el.classList.remove('show'));
-            if (!wasOpen) {
-                const rect = event.currentTarget.getBoundingClientRect();
-                menu.style.top = (rect.bottom + 4) + 'px';
-                menu.style.left = Math.max(0, rect.right - 140) + 'px';
-                menu.classList.add('show');
+            const dd = document.getElementById('sharedDropdown');
+            const wasOpen = dd.classList.contains('show');
+            dd.classList.remove('show');
+            if (wasOpen) return;
+
+            let html = '';
+            if (type === 'team') {
+                html = '<button class="danger" onclick="deleteTeam(\'' + id + '\')">Delete Team</button>';
+            } else {
+                html = '<button onclick="closeDropdowns();openEmailSlideshow(\'' + id + '\')">View Emails</button>';
+                html += '<button class="danger" onclick="deleteResume(\'' + id + '\')">Delete Resume</button>';
             }
+            dd.innerHTML = html;
+
+            const rect = event.currentTarget.getBoundingClientRect();
+            dd.style.top = (rect.bottom + 4) + 'px';
+            dd.style.left = Math.min(rect.left, window.innerWidth - 160) + 'px';
+            dd.classList.add('show');
         }
 
         document.addEventListener('click', () => {
-            document.querySelectorAll('.dropdown-menu.show').forEach(el => el.classList.remove('show'));
+            document.getElementById('sharedDropdown').classList.remove('show');
         });
 
         /* ---- Sorting ---- */
@@ -574,7 +579,7 @@
         }
 
         function closeDropdowns() {
-            document.querySelectorAll('.dropdown-menu.show').forEach(el => el.classList.remove('show'));
+            document.getElementById('sharedDropdown').classList.remove('show');
         }
 
         /* ---- Single cell email modal ---- */
