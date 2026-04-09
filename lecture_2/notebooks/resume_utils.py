@@ -4,6 +4,7 @@ from typing import Any, Dict, Type
 import httpx
 import json
 import csv
+import time
 
 from pydantic import BaseModel
 
@@ -95,47 +96,73 @@ Resume:
         },
     }
 
-    try:
-        with httpx.Client(timeout=60) as client:
-            resp = client.post(url, headers=headers, json=payload)
-            resp.raise_for_status()
-            data = resp.json()
+    max_retries = 3
+    backoff = 2  # seconds
 
-            if "error" in data:
+    for attempt in range(max_retries):
+        try:
+            with httpx.Client(timeout=60) as client:
+                resp = client.post(url, headers=headers, json=payload)
+                resp.raise_for_status()
+                data = resp.json()
+
+                if "error" in data:
+                    return {
+                        "result": None,
+                        "error": f"API error: {data['error']}",
+                        "usage": {},
+                        "cost": None,
+                    }
+
+                content = data["choices"][0]["message"]["content"]
+                if not content:
+                    return {
+                        "result": None,
+                        "error": f"Empty response from model. Raw response: {data}",
+                        "usage": data.get("usage", {}),
+                        "cost": None,
+                    }
+
+                parsed = output_schema.model_validate_json(content)
+
+                usage = data.get("usage", {})
+                cost = usage.get("cost")
+
                 return {
-                    "result": None,
-                    "error": f"API error: {data['error']}",
-                    "usage": {},
-                    "cost": None,
+                    "result": parsed.model_dump(),
+                    "error": None,
+                    "usage": usage,
+                    "cost": cost,
                 }
-
-            content = data["choices"][0]["message"]["content"]
-            if not content:
-                return {
-                    "result": None,
-                    "error": f"Empty response from model. Raw response: {data}",
-                    "usage": data.get("usage", {}),
-                    "cost": None,
-                }
-
-            parsed = output_schema.model_validate_json(content)
-
-            usage = data.get("usage", {})
-            cost = usage.get("cost")
-
+        except (httpx.HTTPStatusError, httpx.ConnectError, httpx.ReadTimeout) as e:
+            status = getattr(e, "response", None)
+            status_code = status.status_code if status is not None else None
+            if status_code in (502, 503, 429) or status_code is None:
+                if attempt < max_retries - 1:
+                    wait = backoff * (attempt + 1)
+                    print(f"  [retry {attempt + 1}/{max_retries}] {status_code or type(e).__name__}, waiting {wait}s...")
+                    time.sleep(wait)
+                    continue
             return {
-                "result": parsed.model_dump(),
-                "error": None,
-                "usage": usage,
-                "cost": cost,
+                "result": None,
+                "error": str(e),
+                "usage": {},
+                "cost": None,
             }
-    except Exception as e:
-        return {
-            "result": None,
-            "error": str(e),
-            "usage": {},
-            "cost": None,
-        }
+        except Exception as e:
+            return {
+                "result": None,
+                "error": str(e),
+                "usage": {},
+                "cost": None,
+            }
+
+    return {
+        "result": None,
+        "error": f"Failed after {max_retries} retries",
+        "usage": {},
+        "cost": None,
+    }
 
 
 def submit_score(
